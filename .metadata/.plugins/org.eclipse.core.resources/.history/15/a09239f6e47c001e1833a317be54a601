@@ -1,0 +1,87 @@
+package dm3;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MemoryBank {
+    private List<String> equations;
+    private int currentQuizIndex;
+    private int attempted;
+    private int correct;
+    private boolean quizMode = false;
+
+
+    public void exitQuiz() {
+        quizMode = false;
+        // ... rest of your exit quiz logic
+    }
+
+    public boolean isInQuizMode() {
+        return quizMode;
+    }
+
+
+    public MemoryBank() {
+        equations = new ArrayList<>();
+        currentQuizIndex = 0;
+        attempted = 0;
+        correct = 0;
+    }
+
+    public void addEquation(String equation) {
+        if (equations.size() < 10) {
+            equations.add(equation);
+            System.out.println("Equation added: " + equation); // Debug log
+        } else {
+            // Handle the case when there are already 10 equations
+            System.out.println("Memory Bank is full.");
+        }
+    }
+
+    public String getNextQuizQuestion() {
+        System.out.println("Getting next question. Current index: " + currentQuizIndex); // Debug log
+        if (currentQuizIndex < equations.size()) {
+            return equations.get(currentQuizIndex++);
+        } else {
+             // End quiz mode if there are no more questions
+            System.out.println("No more questions available."); // Debug log
+            return null;
+        }
+    }
+
+
+    public void startQuiz() {
+    	quizMode = true;
+        if (!equations.isEmpty()) {
+            currentQuizIndex = 0;
+            // Reset the quiz state if needed
+        } else {
+            System.out.println("Memory Bank is empty.");
+            quizMode = false;
+        }
+    }
+
+
+    
+    public int getEquationsCount() {
+        return equations.size();
+    }
+
+    public void incrementAttempted() {
+        attempted++;
+    }
+
+    public void incrementCorrect() {
+        correct++;
+    }
+
+    public int getAttempted() {
+        return attempted;
+    }
+
+    public int getCorrect() {
+        return correct;
+    }
+}
+
+

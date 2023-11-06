@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;dm3.mainGui&apos; to &apos;GuiView&apos;&#x0D;&#x0A;- Original project: &apos;dm3&apos;&#x0D;&#x0A;- Original element: &apos;dm3.mainGui&apos;&#x0D;&#x0A;- Renamed element: &apos;dm3.GuiView&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;mainGui&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;dm3{mainGui.java[mainGui" matchStrategy="1" name="GuiView" qualified="false" references="true" similarDeclarations="false" stamp="1699238559111" textual="false" version="1.0"/>
+</session>

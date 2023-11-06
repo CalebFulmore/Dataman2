@@ -1,0 +1,16 @@
+package dm3;
+
+public class AnswerChecker {
+
+    public String checkDivisionAnswer(int dividend, int divisor, int userQuotient) {
+        int correctQuotient = dividend / divisor;
+        int remainder = dividend % divisor;
+
+        if (userQuotient == correctQuotient) {
+            return "Good job, hit 'New' to try another!";
+        } else {
+            return correctQuotient + " R " + remainder;
+        }
+    }
+
+}

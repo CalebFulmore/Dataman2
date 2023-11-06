@@ -1,0 +1,32 @@
+package dm3;
+
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class MemoryBank {
+    private Queue<String> memoryQueue;
+    private static final int CAPACITY = 10;
+
+    public MemoryBank() {
+        memoryQueue = new LinkedList<>();
+    }
+
+    public boolean saveToMemoryBank(String equation) {
+        if (memoryQueue.size() < CAPACITY) {
+            return memoryQueue.offer(equation);
+        } else {
+            return false; // Memory bank is full
+        }
+    }
+
+    public String getNextEquation() {
+        return memoryQueue.poll(); // Returns null if the queue is empty
+    }
+
+    public int getStoredEquationsCount() {
+        return memoryQueue.size();
+    }
+
+    // Add any other methods you might need, such as clearing the memory bank, etc.
+}
+

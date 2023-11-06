@@ -1,0 +1,60 @@
+package dm3;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JTextField;
+
+class ButtonClickListener implements ActionListener {
+	private JTextField mainDisplay;
+    private AnswerChecker answerChecker;
+
+    // Constructor that accepts the main display text field
+    public ButtonClickListener(JTextField mainDisplay) {
+        this.mainDisplay = mainDisplay;
+        this.answerChecker = new AnswerChecker(); // Initialize the AnswerChecker here
+    }
+	
+	
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+        if ("On".equals(command)) {
+            mainDisplay.setText("=");
+            // Further initialization if needed
+        } else if ("New".equals(command)) {
+            mainDisplay.setText("=");
+            // Reset the state for a new question
+        } else if ("Enter".equals(command)) {
+            evaluateAnswer();
+        } else if (!"=".equals(mainDisplay.getText())) {
+            // Append the button text to the display unless it is the initial "="
+            mainDisplay.setText(mainDisplay.getText() + command);
+        }
+    }
+
+    private void evaluateAnswer() {
+        String displayText = mainDisplay.getText();
+        if (displayText.contains("÷") && displayText.contains("=")) {
+            // Extract the numbers and the answer
+            String[] parts = displayText.split("÷|=");
+            if (parts.length == 3) {
+                try {
+                    int dividend = Integer.parseInt(parts[0].trim());
+                    int divisor = Integer.parseInt(parts[1].trim());
+                    // Check for division by zero
+                    if (divisor == 0) {
+                        mainDisplay.setText("Error: Division by zero");
+                        return;
+                    }
+                    int userAnswer = Integer.parseInt(parts[2].trim());
+                    // Use the instance variable answerChecker
+                    String result = answerChecker.checkDivisionAnswer(dividend, divisor, userAnswer);
+                    mainDisplay.setText(result);
+                } catch (NumberFormatException ex) {
+                    mainDisplay.setText("Error: Invalid Input");
+                }
+            }
+        }
+    }
+
+}

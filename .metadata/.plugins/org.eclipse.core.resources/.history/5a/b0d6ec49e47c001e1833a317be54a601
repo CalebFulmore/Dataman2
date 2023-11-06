@@ -1,0 +1,210 @@
+package dm3;
+
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.concurrent.atomic.AtomicInteger;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+class ButtonClickListener implements ActionListener {
+    private JTextField mainDisplay;
+    private AnswerChecker answerChecker;
+    private boolean secondAttemptAllowed;
+    private String lastOperation;
+    private int lastDividend;
+    private int lastDivisor;
+    private JTextField correctDisplay;
+    private JTextField attemptDisplay;
+    private AtomicInteger correctCount;
+    private AtomicInteger attemptCount;
+    private GuiView guiView;
+    private MemoryBank memoryBank;
+
+    public ButtonClickListener(JTextField mainDisplay, JTextField correctDisplay,
+                               JTextField attemptDisplay, AtomicInteger correctCount,
+                               AtomicInteger attemptCount, GuiView guiView, MemoryBank memoryBank) {
+        this.mainDisplay = mainDisplay;
+        this.correctDisplay = correctDisplay;
+        this.attemptDisplay = attemptDisplay;
+        this.correctCount = correctCount;
+        this.attemptCount = attemptCount;
+        this.guiView = guiView;
+        this.answerChecker = new AnswerChecker();
+        this.secondAttemptAllowed = true;
+        this.memoryBank = memoryBank;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+        switch (command) {
+            case "On":
+            case "New":
+                prepareNewProblem();
+                break;
+            case "Enter":
+                evaluateAnswer();
+                break;
+            case "Off":
+                resetCountsAndDisplays();
+                break;
+            case "MemBank":
+                memoryBank.addEquation(mainDisplay.getText()); // Save the current equation
+                // Provide feedback to the user by updating one of the small displays
+                mainDisplay.setText("Saved!");
+                break;
+            case "Go":
+                memoryBank.startQuiz(); 
+                displayNextQuizQuestion();
+                break;
+            default:
+                appendToDisplay(command);
+                break;
+        }
+    }
+    
+    private void displayNextQuizQuestion() {
+        String question = memoryBank.getNextQuizQuestion();
+        if (question != null) {
+            mainDisplay.setText(question + " =");
+            attemptDisplay.setText(String.valueOf(memoryBank.getAttempted()));
+            correctDisplay.setText(String.valueOf(memoryBank.getCorrect()));
+        } else {
+            mainDisplay.setText("No more questions left"); // Method to call to update GUI for end of quiz
+        }
+    }
+
+
+    private void prepareNewProblem() {
+        mainDisplay.setText("=");
+        secondAttemptAllowed = true;
+        lastOperation = null;
+        answerChecker.resetDivisionAttempts(); // Call the reset method here
+    }
+
+
+    private void resetCountsAndDisplays() {
+        correctCount.set(0);
+        attemptCount.set(0);
+        correctDisplay.setText("0");
+        attemptDisplay.setText("0");
+        mainDisplay.setText("");
+    }
+
+    private void appendToDisplay(String command) {
+        if ("=".equals(mainDisplay.getText())) {
+            mainDisplay.setText("");
+        }
+        mainDisplay.setText(mainDisplay.getText() + command);
+    }
+    
+    private String getCorrectAnswer(String operation, int dividend, int divisor) {
+        switch (operation) {
+            case "÷":
+                int correctQuotient = dividend / divisor;
+                int remainder = dividend % divisor;
+                return correctQuotient + (remainder > 0 ? " R " + remainder : "");
+            case "+":
+                return String.valueOf(dividend + divisor);
+            case "-":
+                return String.valueOf(dividend - divisor);
+            case "×":
+                return String.valueOf(dividend * divisor);
+            default:
+                return "";
+        }
+    }
+
+    private void evaluateAnswer() {
+        String displayText = mainDisplay.getText();
+        if (displayText.contains("=")) {
+            String[] parts = displayText.split("[÷×\\-+]|=");
+            if (parts.length == 3) {
+                try {
+                    int firstNumber = Integer.parseInt(parts[0].trim());
+                    int secondNumber = Integer.parseInt(parts[1].trim());
+                    int userAnswer = Integer.parseInt(parts[2].trim());
+                    boolean isCorrect = false;
+
+                    // Capture the operation symbol (+, -, ×, ÷)
+                    String operationSymbol = displayText.replaceAll("[^÷×\\-+]", "");
+
+                    // Determine the operation and set the last operation details
+                    if (displayText.contains("÷")) {
+                        lastOperation = "÷";
+                        lastDividend = firstNumber;
+                        lastDivisor = secondNumber;
+                    } else if (displayText.contains("+")) {
+                        lastOperation = "+";
+                    } else if (displayText.contains("-")) {
+                        lastOperation = "-";
+                    } else if (displayText.contains("×")) {
+                        lastOperation = "×";
+                    }
+                    
+                    // Use AnswerChecker to determine if the answer is correct
+                 // Use AnswerChecker to determine if the answer is correct
+                    String result;
+                    switch (lastOperation) {
+                        case "÷":
+                            result = answerChecker.checkDivisionAnswer(firstNumber, secondNumber, userAnswer);
+                            break;
+                        case "+":
+                            result = answerChecker.checkAdditionAnswer(firstNumber, secondNumber, userAnswer);
+                            break;
+                        case "-":
+                            result = answerChecker.checkSubtractionAnswer(firstNumber, secondNumber, userAnswer);
+                            break;
+                        case "×":
+                            result = answerChecker.checkMultiplicationAnswer(firstNumber, secondNumber, userAnswer);
+                            break;
+                        default:
+                            result = "Error: Invalid Operation";
+                            break;
+                    }
+
+                    isCorrect = result.startsWith("Correct");
+                    
+
+                    if (memoryBank.isInQuizMode()) {
+                        // Handle quiz mode behavior
+                        if (!isCorrect) {
+                            if (secondAttemptAllowed) {
+                                // existing code to handle second attempt...
+                            } else {
+                                memoryBank.incrementAttempted();
+                                displayNextQuizQuestion(); // In quiz mode, we move to the next question after a second failed attempt
+                            }
+                        } else {
+                            memoryBank.incrementCorrect();
+                            displayNextQuizQuestion(); // In quiz mode, we move to the next question after a correct answer
+                        }
+                    } else {
+                        // Handle regular mode behavior
+                        if (!isCorrect && secondAttemptAllowed) {
+                            // Allow the user a second attempt, existing code...
+                        } else {
+                            // If the answer is still incorrect after the second attempt or if it's correct
+                            // Reset the attempts and go to the "=" homescreen
+                            answerChecker.resetDivisionAttempts();
+                            displayHomeScreen(); // A method that displays the "=" homescreen
+                        }
+                    }
+
+
+                    attemptCount.incrementAndGet();
+                    correctDisplay.setText(String.valueOf(correctCount.get()));
+                    attemptDisplay.setText(String.valueOf(attemptCount.get()));
+
+                } catch (NumberFormatException ex) {
+                    mainDisplay.setText("Error: Invalid Input");
+                }
+            } else {
+                mainDisplay.setText("Error: Incomplete Equation");
+            }
+        }
+    }
+
+
+}

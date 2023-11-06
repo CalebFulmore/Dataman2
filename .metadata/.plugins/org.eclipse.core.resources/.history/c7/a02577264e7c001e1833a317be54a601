@@ -1,0 +1,92 @@
+package dm3;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class mainGui extends JFrame {
+    private JTextField mainDisplay;
+    private JTextField smallDisplay1;
+    private JTextField smallDisplay2;
+    private JTextField smallDisplay3;
+    private JButton light;
+
+    public mainGui() {
+        createGUI();
+    }
+
+    private void createGUI() {
+        setTitle("Calculator");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        JPanel displayPanel = new JPanel(new GridLayout(5, 1));
+        mainDisplay = new JTextField();
+        mainDisplay.setEditable(false);
+        mainDisplay.setHorizontalAlignment(JTextField.RIGHT);
+        mainDisplay.setFont(new Font("Arial", Font.BOLD, 24)); // Set a larger font for the main display
+        displayPanel.add(mainDisplay);
+
+        // Small displays and labels
+        smallDisplay1 = new JTextField(10);
+        smallDisplay1.setEditable(false);
+        smallDisplay2 = new JTextField(10);
+        smallDisplay2.setEditable(false);
+        smallDisplay3 = new JTextField(10);
+        smallDisplay3.setEditable(false);
+
+        JPanel smallDisplays = new JPanel(new GridLayout(2, 3)); // Use 2 rows to include labels
+        smallDisplays.add(smallDisplay1);
+        smallDisplays.add(smallDisplay2);
+        smallDisplays.add(smallDisplay3);
+
+        // Labels for the small displays
+        JLabel labelCorrect = new JLabel("Correct");
+        labelCorrect.setHorizontalAlignment(JLabel.CENTER);
+        JLabel labelAttempted = new JLabel("Attempted");
+        labelAttempted.setHorizontalAlignment(JLabel.CENTER);
+        JLabel labelTime = new JLabel("Time");
+        labelTime.setHorizontalAlignment(JLabel.CENTER);
+
+        smallDisplays.add(labelCorrect);
+        smallDisplays.add(labelAttempted);
+        smallDisplays.add(labelTime);
+
+        displayPanel.add(smallDisplays);
+
+        // Buttons
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 4, 5, 5));
+
+        String[] buttons = {
+                "7", "8", "9", "÷",
+                "4", "5", "6", "×",
+                "1", "2", "3", "-",
+                "0", "C", "=", "+",
+                "On", "Off", "New", "MemBank"
+                ,"Enter", "Clear","Number Guesser"
+        };
+
+        for (String b : buttons) {
+            JButton button = new JButton(b);
+            buttonPanel.add(button);
+        }
+
+        // Light
+        light = new JButton();
+        light.setBackground(Color.RED);
+        light.setEnabled(false);
+
+        // Layout setup
+        add(displayPanel, BorderLayout.NORTH);
+        add(buttonPanel, BorderLayout.CENTER);
+        add(light, BorderLayout.SOUTH);
+
+        setSize(400, 600);
+        setLocationRelativeTo(null); // Center on screen
+        setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        // Run the GUI construction in the Event-Dispatching thread for thread-safety.
+        SwingUtilities.invokeLater(new GuiView()::createGUI);
+    }
+}

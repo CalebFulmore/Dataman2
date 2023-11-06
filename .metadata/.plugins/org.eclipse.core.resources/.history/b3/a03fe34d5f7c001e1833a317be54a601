@@ -1,0 +1,176 @@
+package dm3;
+
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.concurrent.atomic.AtomicInteger;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+class ButtonClickListener implements ActionListener {
+    private JTextField mainDisplay;
+    private AnswerChecker answerChecker;
+    private boolean secondAttemptAllowed;
+    private String lastOperation;
+    private int lastDividend;
+    private int lastDivisor;
+    private JTextField correctDisplay;
+    private JTextField attemptDisplay;
+    private AtomicInteger correctCount;
+    private AtomicInteger attemptCount;
+    private GuiView guiView;
+    private MemoryBank memoryBank;
+    private boolean isMemoryBankMode;
+
+    public ButtonClickListener(JTextField mainDisplay, JTextField correctDisplay,
+                               JTextField attemptDisplay, AtomicInteger correctCount,
+                               AtomicInteger attemptCount, GuiView guiView,
+                               MemoryBank memoryBank) {
+        this.mainDisplay = mainDisplay;
+        this.correctDisplay = correctDisplay;
+        this.attemptDisplay = attemptDisplay;
+        this.correctCount = correctCount;
+        this.attemptCount = attemptCount;
+        this.guiView = guiView;
+        this.memoryBank = memoryBank;
+        this.answerChecker = new AnswerChecker();
+        this.secondAttemptAllowed = true;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        String command = e.getActionCommand();
+        switch (command) {
+            case "On":
+            case "New":
+                prepareNewProblem();
+                break;
+            case "Enter":
+                evaluateAnswer();
+                break;
+            case "MemBank":
+                saveEquationToMemory();
+                break;
+            case "Go":
+                retrieveNextMemoryBankEquation();
+                break;
+            case "Off":
+                resetCountsAndDisplays();
+                break;
+            default:
+                appendToDisplay(command);
+                break;
+        }
+    }
+
+    private void prepareNewProblem() {
+        mainDisplay.setText("=");
+        secondAttemptAllowed = true;
+        lastOperation = null;
+    }
+
+    private void saveEquationToMemory() {
+        String equation = mainDisplay.getText();
+        boolean success = memoryBank.saveToMemoryBank(equation);
+        mainDisplay.setText(success ? "Saved to Memory Bank" : "Memory Bank Full");
+    }
+
+    private void retrieveNextMemoryBankEquation() {
+        isMemoryBankMode = true;
+        String equation = memoryBank.getNextEquation();
+        mainDisplay.setText(equation != null ? equation + "=" : "Memory Bank Empty");
+    }
+
+    private void resetCountsAndDisplays() {
+        correctCount.set(0);
+        attemptCount.set(0);
+        correctDisplay.setText("0");
+        attemptDisplay.setText("0");
+        mainDisplay.setText("");
+    }
+
+    private void appendToDisplay(String command) {
+        if ("=".equals(mainDisplay.getText())) {
+            mainDisplay.setText("");
+        }
+        mainDisplay.setText(mainDisplay.getText() + command);
+    }
+
+    private void evaluateAnswer() {
+        String displayText = mainDisplay.getText();
+        if (displayText.contains("=")) {
+            // Extract the operation, numbers, and the answer
+            String[] parts = displayText.split("[÷×\\-+]|=");
+            if (parts.length == 3) {
+                try {
+                    int firstNumber = Integer.parseInt(parts[0].trim());
+                    int secondNumber = Integer.parseInt(parts[1].trim());
+                    int userAnswer = Integer.parseInt(parts[2].trim());
+                    String result = "";
+                    boolean isCorrect = false; // Flag to indicate if the answer is correct
+                    
+                    if (displayText.contains("÷")) {
+                        if (lastDivisor == 0) {
+                            mainDisplay.setText("Can't Divide By Zero");
+                        }
+                        lastOperation = "÷";
+                        lastDividend = firstNumber;
+                        lastDivisor = secondNumber;
+                        result = answerChecker.checkDivisionAnswer(firstNumber, secondNumber, userAnswer);
+                        isCorrect = result.startsWith("Good job") || result.equals("Correct");
+                    } else if (displayText.contains("+")) {
+                        lastOperation = "+";
+                        result = answerChecker.checkAdditionAnswer(firstNumber, secondNumber, userAnswer);
+                        isCorrect = "Correct".equals(result);
+                    } else if (displayText.contains("-")) {
+                        lastOperation = "-";
+                        result = answerChecker.checkSubtractionAnswer(firstNumber, secondNumber, userAnswer);
+                        isCorrect = "Correct".equals(result);
+                    } else if (displayText.contains("×")) {
+                        lastOperation = "×";
+                        result = answerChecker.checkMultiplicationAnswer(firstNumber, secondNumber, userAnswer);
+                        isCorrect = "Correct".equals(result);
+                    }
+                    
+                    // Check if the answer is correct and handle accordingly
+                 // If the answer is correct
+                    if (isCorrect) {
+                        mainDisplay.setText(result + ", hit 'New' to try another!");
+                        correctCount.incrementAndGet(); // Increment the correct count
+                        secondAttemptAllowed = true; // The answer is correct, allow a new problem
+                    } else {
+                        // On second attempt, display the correct answer
+                        if (!secondAttemptAllowed) {
+                            String correctAnswer = getCorrectAnswer(lastOperation, lastDividend, lastDivisor);
+                            mainDisplay.setText(lastDividend + " " + lastOperation + " " + lastDivisor + " = " + correctAnswer);
+                            secondAttemptAllowed = true; // Allow a new problem after the wrong answer
+                        } else {
+                            // First wrong attempt, prompt for second chance
+                            mainDisplay.setText(firstNumber + lastOperation + secondNumber + "=");
+                            secondAttemptAllowed = false;
+                        }
+                    }
+
+                    // Flash logic for correct answers (should be outside the if-else block)
+                    if (correctCount.get() == 10) {
+                        SwingUtilities.invokeLater(() -> guiView.flashMultiColor(5000));
+                    } else if (isCorrect) { // Only flash green if the answer was correct
+                        SwingUtilities.invokeLater(() -> guiView.flashLight(Color.GREEN, 500, 2000));
+                    }
+
+                    // Increment the attempt count regardless of the answer being correct or incorrect
+                    attemptCount.incrementAndGet();
+
+                    // Update the display fields
+                    correctDisplay.setText(String.valueOf(correctCount.get()));
+                    attemptDisplay.setText(String.valueOf(attemptCount.get()));
+
+                    
+                } catch (NumberFormatException ex) {
+                    mainDisplay.setText("Error: Invalid Input");
+                }
+            }
+        }
+    }
+
+}

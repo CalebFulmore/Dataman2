@@ -1,0 +1,55 @@
+package dm3;
+
+public class AnswerChecker {
+
+	private int divisionAttempts = 0;
+
+    public String checkDivisionAnswer(int dividend, int divisor, int userQuotient) {
+        int correctQuotient = dividend / divisor;
+        int remainder = dividend % divisor;
+        int userRemainder = (userQuotient * divisor) % dividend;
+
+        if (userQuotient == correctQuotient || (userQuotient == correctQuotient + 1 && userRemainder >= divisor / 2)) {
+            divisionAttempts = 0; // Reset attempts on correct answer
+            return "Correct";
+        } else {
+            divisionAttempts++;
+            if (divisionAttempts >= 2) {
+                divisionAttempts = 0; // Reset attempts after showing the answer
+                return correctQuotient + " R " + remainder;
+            } else {
+                return "Incorrect, try again!";
+            }
+        }
+    }
+    
+    public String checkAdditionAnswer(int addend1, int addend2, int userSum) {
+        if (userSum == addend1 + addend2) {
+            return "Correct";
+        } else {
+            return "Incorrect, try again!";
+        }
+    }
+
+    public String checkSubtractionAnswer(int minuend, int subtrahend, int userDifference) {
+        if (userDifference == minuend - subtrahend) {
+            return "Correct";
+        } else {
+            return "Incorrect, try again!";
+        }
+    }
+
+    public String checkMultiplicationAnswer(int multiplicand, int multiplier, int userProduct) {
+        if (userProduct == multiplicand * multiplier) {
+            return "Correct";
+        } else {
+            return "Incorrect, try again!";
+        }
+    }
+    
+    public void resetDivisionAttempts() {
+        divisionAttempts = 0;
+    }
+
+
+}

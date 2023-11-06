@@ -1,0 +1,56 @@
+package dm3;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MemoryBank {
+    private List<String> equations;
+    private int currentQuizIndex;
+    private boolean quizMode;
+
+    public MemoryBank() {
+        equations = new ArrayList<>();
+        currentQuizIndex = 0;
+        quizMode = false;
+    }
+
+    public void addEquation(String equation) {
+        if (equations.size() < 10) {
+            equations.add(equation);
+        } else {
+            // Handle the case when there are already 10 equations
+            System.out.println("Memory Bank is full.");
+        }
+    }
+
+    public void startQuiz() {
+        if (!equations.isEmpty()) {
+            quizMode = true;
+            currentQuizIndex = 0;
+            // Reset the quiz state if needed
+        } else {
+            System.out.println("Memory Bank is empty.");
+        }
+    }
+
+    public String getNextQuizQuestion() {
+        if (quizMode && currentQuizIndex < equations.size()) {
+            return equations.get(currentQuizIndex++);
+        } else {
+            quizMode = false; // End quiz mode if there are no more questions
+            return null;
+        }
+    }
+
+    public boolean isInQuizMode() {
+        return quizMode;
+    }
+    
+    public int getEquationsCount() {
+        return equations.size();
+    }
+
+    // Add methods to check answers and keep track of scores
+}
+
+

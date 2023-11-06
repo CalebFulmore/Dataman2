@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator/Gameboy Style App</title>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+  <div class="screen-main"></div>
+  <div class="screen-sub">
+    <div class="section">Correct: <span id="correct">0</span></div>
+    <div class="section">Attempted: <span id="attempted">0</span></div>
+    <div class="section">Time: <span id="time">00:00</span></div>
+  </div>
+  <div class="buttons">
+    <!-- Buttons with additional classes for JavaScript targeting and styling -->
+    <button type="button" id="onButton" class="btn-secondary on">ON/UserEntry</button>
+    <button type="button" id="offButton" class="btn btn-secondary off">OFF</button>
+    <button type="button" id="divideButton" class="btn btn-secondary math-symbol">÷</button>
+    <button type="button" id="sevenButton" class="btn btn-secondary number-btn">7</button>
+    <button type="button" id="eightButton" class="btn btn-secondary number-btn">8</button>
+    <button type="button" id="nineButton" class="btn btn-secondary number-btn">9</button>
+    <button type="button" id="multiplyButton" class="btn btn-secondary math-symbol">×</button>
+    <button type="button" id="fourButton" class="btn btn-secondary number-btn">4</button>
+    <button type="button" id="fiveButton" class="btn btn-secondary number-btn">5</button>
+    <button type="button" id="sixButton" class="btn btn-secondary number-btn">6</button>
+    <button type="button" id="subtractButton" class="btn btn-secondary math-symbol">−</button>
+    <button type="button" id="oneButton" class="btn btn-secondary number-btn">1</button>
+    <button type="button" id="twoButton" class="btn btn-secondary number-btn">2</button>
+    <button type="button" id="threeButton" class="btn btn-secondary number-btn">3</button>
+    <button type="button" id="addButton" class="btn btn-secondary math-symbol">+</button>
+    <button type="button" id="zeroButton" class="btn btn-secondary number-btn">0</button>
+    <button type="button" id="equalsButton" class="btn btn-secondary equals">=</button>
+    <button type="button" id="enterButton" class="btn btn-secondary enter">Enter</button>
+    <button type="button" id="newButton" class="btn-secondary game">New</button>
+    <!-- Add these buttons inside the <div class="buttons"> ... </div> -->
+<button type="button" id="memoryBankButton" class="btn btn-secondary memory">Memory Bank</button>
+<button type="button" id="goButton" class="btn btn-secondary go">GO</button>
+<button type="button" id="clearButton" class="btn btn-secondary">Clear</button>
+
+
+  </div>
+  <div class="lights">
+    <div class="light" id="light1"></div>
+    <div class="light" id="light2"></div>
+    <div class="light" id="light3"></div>
+    <div class="light" id="light4"></div>
+</div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
+
